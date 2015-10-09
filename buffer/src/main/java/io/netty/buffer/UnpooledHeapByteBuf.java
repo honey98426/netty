@@ -32,7 +32,7 @@ import java.nio.channels.ScatteringByteChannel;
 public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
 
     private final ByteBufAllocator alloc;
-    private byte[] array;
+    byte[] array;
     private ByteBuffer tmpNioBuf;
 
     /**
@@ -82,28 +82,28 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    public ByteBufAllocator alloc() {
+    public final ByteBufAllocator alloc() {
         return alloc;
     }
 
     @Override
-    public ByteOrder order() {
+    public final ByteOrder order() {
         return ByteOrder.BIG_ENDIAN;
     }
 
     @Override
-    public boolean isDirect() {
+    public final boolean isDirect() {
         return false;
     }
 
     @Override
-    public int capacity() {
+    public final int capacity() {
         ensureAccessible();
         return array.length;
     }
 
     @Override
-    public ByteBuf capacity(int newCapacity) {
+    public final ByteBuf capacity(int newCapacity) {
         ensureAccessible();
         if (newCapacity < 0 || newCapacity > maxCapacity()) {
             throw new IllegalArgumentException("newCapacity: " + newCapacity);
@@ -132,33 +132,33 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    public boolean hasArray() {
+    public final boolean hasArray() {
         return true;
     }
 
     @Override
-    public byte[] array() {
+    public final byte[] array() {
         ensureAccessible();
         return array;
     }
 
     @Override
-    public int arrayOffset() {
+    public final int arrayOffset() {
         return 0;
     }
 
     @Override
-    public boolean hasMemoryAddress() {
+    public final boolean hasMemoryAddress() {
         return false;
     }
 
     @Override
-    public long memoryAddress() {
+    public final long memoryAddress() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ByteBuf getBytes(int index, ByteBuf dst, int dstIndex, int length) {
+    public final ByteBuf getBytes(int index, ByteBuf dst, int dstIndex, int length) {
         checkDstIndex(index, length, dstIndex, dst.capacity());
         if (dst.hasMemoryAddress()) {
             PlatformDependent.copyMemory(array, index, dst.memoryAddress() + dstIndex, length);
@@ -171,28 +171,28 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    public ByteBuf getBytes(int index, byte[] dst, int dstIndex, int length) {
+    public final ByteBuf getBytes(int index, byte[] dst, int dstIndex, int length) {
         checkDstIndex(index, length, dstIndex, dst.length);
         System.arraycopy(array, index, dst, dstIndex, length);
         return this;
     }
 
     @Override
-    public ByteBuf getBytes(int index, ByteBuffer dst) {
+    public final ByteBuf getBytes(int index, ByteBuffer dst) {
         ensureAccessible();
         dst.put(array, index, Math.min(capacity() - index, dst.remaining()));
         return this;
     }
 
     @Override
-    public ByteBuf getBytes(int index, OutputStream out, int length) throws IOException {
+    public final ByteBuf getBytes(int index, OutputStream out, int length) throws IOException {
         ensureAccessible();
         out.write(array, index, length);
         return this;
     }
 
     @Override
-    public int getBytes(int index, GatheringByteChannel out, int length) throws IOException {
+    public final int getBytes(int index, GatheringByteChannel out, int length) throws IOException {
         ensureAccessible();
         return getBytes(index, out, length, false);
     }
@@ -209,7 +209,7 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    public int readBytes(GatheringByteChannel out, int length) throws IOException {
+    public final int readBytes(GatheringByteChannel out, int length) throws IOException {
         checkReadableBytes(length);
         int readBytes = getBytes(readerIndex, out, length, true);
         readerIndex += readBytes;
@@ -217,7 +217,7 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    public ByteBuf setBytes(int index, ByteBuf src, int srcIndex, int length) {
+    public final ByteBuf setBytes(int index, ByteBuf src, int srcIndex, int length) {
         checkSrcIndex(index, length, srcIndex, src.capacity());
         if (src.hasMemoryAddress()) {
             PlatformDependent.copyMemory(src.memoryAddress() + srcIndex, array, index, length);
@@ -230,27 +230,27 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    public ByteBuf setBytes(int index, byte[] src, int srcIndex, int length) {
+    public final ByteBuf setBytes(int index, byte[] src, int srcIndex, int length) {
         checkSrcIndex(index, length, srcIndex, src.length);
         System.arraycopy(src, srcIndex, array, index, length);
         return this;
     }
 
     @Override
-    public ByteBuf setBytes(int index, ByteBuffer src) {
+    public final ByteBuf setBytes(int index, ByteBuffer src) {
         ensureAccessible();
         src.get(array, index, src.remaining());
         return this;
     }
 
     @Override
-    public int setBytes(int index, InputStream in, int length) throws IOException {
+    public final int setBytes(int index, InputStream in, int length) throws IOException {
         ensureAccessible();
         return in.read(array, index, length);
     }
 
     @Override
-    public int setBytes(int index, ScatteringByteChannel in, int length) throws IOException {
+    public final int setBytes(int index, ScatteringByteChannel in, int length) throws IOException {
         ensureAccessible();
         try {
             return in.read((ByteBuffer) internalNioBuffer().clear().position(index).limit(index + length));
@@ -260,23 +260,23 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    public int nioBufferCount() {
+    public final int nioBufferCount() {
         return 1;
     }
 
     @Override
-    public ByteBuffer nioBuffer(int index, int length) {
+    public final ByteBuffer nioBuffer(int index, int length) {
         ensureAccessible();
         return ByteBuffer.wrap(array, index, length).slice();
     }
 
     @Override
-    public ByteBuffer[] nioBuffers(int index, int length) {
+    public final ByteBuffer[] nioBuffers(int index, int length) {
         return new ByteBuffer[] { nioBuffer(index, length) };
     }
 
     @Override
-    public ByteBuffer internalNioBuffer(int index, int length) {
+    public final ByteBuffer internalNioBuffer(int index, int length) {
         checkIndex(index, length);
         return (ByteBuffer) internalNioBuffer().clear().position(index).limit(index + length);
     }
@@ -422,7 +422,7 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    public ByteBuf copy(int index, int length) {
+    public final ByteBuf copy(int index, int length) {
         checkIndex(index, length);
         byte[] copiedArray = new byte[length];
         System.arraycopy(array, index, copiedArray, 0, length);
@@ -438,12 +438,12 @@ public class UnpooledHeapByteBuf extends AbstractReferenceCountedByteBuf {
     }
 
     @Override
-    protected void deallocate() {
+    protected final void deallocate() {
         array = null;
     }
 
     @Override
-    public ByteBuf unwrap() {
+    public final ByteBuf unwrap() {
         return null;
     }
 }
